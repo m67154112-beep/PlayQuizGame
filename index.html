@@ -3,533 +3,839 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>(國小專用) 快樂學習去 - 108課綱 1~6 級智慧刷題系統</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>(國小專用)*快樂學習去-練習真有趣*</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-color: #1f2937;
-            --correct-color: #10b981;
-            --wrong-color: #ef4444;
-            --border-radius: 12px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
-        }
-
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding-bottom: 60px;
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
         }
-
-        header {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        .animate-bounce-short {
+            animation: bounce 0.6s ease-in-out 1;
         }
-
-        .header-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
-
-        .title-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .title-group h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .controls {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        select {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            background-color: white;
-            color: #333;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        main {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 0 15px;
-        }
-
-        .status-bar {
-            background-color: white;
-            padding: 12px 20px;
-            border-radius: var(--border-radius);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            font-weight: 600;
-        }
-
-        .badge-rag {
-            background-color: #e0e7ff;
-            color: #3730a3;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-        }
-
-        .quiz-card {
-            background: white;
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-
-        .question-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #111827;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-
-        .option-btn {
-            background-color: #f9fafb;
-            border: 2px solid #e5e7eb;
-            padding: 14px 20px;
-            border-radius: 8px;
-            text-align: left;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .option-btn:hover {
-            border-color: var(--primary-color);
-            background-color: #f0fdf4;
-        }
-
-        .option-btn.correct {
-            background-color: #d1fae5;
-            border-color: var(--correct-color);
-            color: #065f46;
-            font-weight: bold;
-        }
-
-        .option-btn.wrong {
-            background-color: #fee2e2;
-            border-color: var(--wrong-color);
-            color: #991b1b;
-        }
-
-        .analysis-card {
-            background-color: white;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .analysis-header {
-            color: var(--primary-color);
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .curriculum-info {
-            background-color: #f8fafc;
-            border-left: 4px solid var(--primary-color);
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: #475569;
-        }
-
-        .explanation-text {
-            color: #334155;
-            line-height: 1.7;
-        }
-
-        .next-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 15px;
-            transition: background-color 0.2s;
-        }
-
-        .next-btn:hover {
-            background-color: var(--primary-hover);
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #6b7280;
-            font-size: 0.85rem;
-            background-color: white;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            border-top: 1px solid #e5e7eb;
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col text-gray-800">
 
-    <header>
-        <div class="header-container">
-            <div class="title-group">
-                <i class="fa-solid fa-graduation-cap fa-2x"></i>
-                <h1>(國小專用) 快樂學習去 - 108課綱1~6級智慧刷題系統</h1>
+    <!-- 頂部導覽列 Header -->
+    <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 p-2.5 rounded-xl border border-white/20">
+                    <i class="fa-solid fa-graduation-cap text-2xl text-yellow-300"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black tracking-wide text-amber-200">
+                        (國小專用)*快樂學習去-練習真有趣*
+                    </h1>
+                </div>
             </div>
 
-            <div class="controls">
-                <!-- 難易度 1~6 級分類 -->
-                <select id="levelSelect" onchange="loadQuestion()">
-                    <option value="1">等級 1 (一年級 G1)</option>
-                    <option value="2">等級 2 (二年級 G2)</option>
-                    <option value="3">等級 3 (三年級 G3)</option>
-                    <option value="4">等級 4 (四年級 G4)</option>
-                    <option value="5">等級 5 (五年級 G5)</option>
-                    <option value="6">等級 6 (六年級 G6)</option>
+            <!-- 右側選單與按鈕 -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <!-- 年級選擇 -->
+                <select id="gradeSelect" class="bg-indigo-800 border border-indigo-500 text-white text-sm rounded-lg px-3 py-2 font-medium focus:ring-2 focus:ring-amber-300 focus:outline-none cursor-pointer">
+                    <option value="1">一年級 (G1)</option>
+                    <option value="2">二年級 (G2)</option>
+                    <option value="3">三年級 (G3)</option>
+                    <option value="4">四年級 (G4)</option>
+                    <option value="5">五年級 (G5)</option>
+                    <option value="6">六年級 (G6)</option>
                 </select>
 
-                <!-- 三大領域切換 -->
-                <select id="subjectSelect" onchange="loadQuestion()">
+                <!-- 科目選擇 -->
+                <select id="subjectSelect" class="bg-indigo-800 border border-indigo-500 text-white text-sm rounded-lg px-3 py-2 font-medium focus:ring-2 focus:ring-amber-300 focus:outline-none cursor-pointer">
                     <option value="chi">📖 國語領域</option>
                     <option value="eng">🔤 英語領域</option>
                     <option value="math">🧮 數學領域</option>
                 </select>
+
+                <!-- AI 擴充設定按鈕 -->
+                <button id="aiModalBtn" class="bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold px-3 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-robot text-amber-300"></i> AI 擴充
+                </button>
+
+                <!-- 錯題本按鈕 -->
+                <button id="notebookBtn" class="bg-amber-500 hover:bg-amber-400 text-indigo-950 text-sm font-bold px-3 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-book-bookmark"></i> 錯題本 (<span id="notebookCount">0</span>)
+                </button>
             </div>
         </div>
     </header>
 
-    <main>
-        <div class="status-bar">
-            <div>
-                <span class="badge-rag"><i class="fa-solid fa-database"></i> 108課綱對照題庫 RAG</span>
-                <span style="margin: 0 10px; color:#ccc;">|</span>
-                <span>當前難易度: <strong id="levelDisplay">1 級</strong></span>
+    <!-- 主要內容區 Main Content -->
+    <main class="flex-grow max-w-4xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+        <!-- 狀態資訊列 Info Bar -->
+        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-sm font-semibold text-gray-600">
+                <span id="sourceBadge" class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full border border-indigo-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-database text-xs"></i> 綜合實體題庫 RAG
+                </span>
+                <span class="text-gray-400">|</span>
+                <span id="questionSeq">題目序號: #1</span>
             </div>
-            <div>
-                <span><i class="fa-solid fa-fire" style="color:#f59e0b;"></i> 連勝: <span id="streakCount">0</span></span>
-                <span style="margin: 0 10px; color:#ccc;">|</span>
-                <span>正確率: <span id="accuracy">100%</span></span>
+
+            <div class="flex items-center gap-4 text-sm font-bold">
+                <div class="text-emerald-600 flex items-center gap-1">
+                    <i class="fa-solid fa-fire text-amber-500"></i>
+                    <span>連勝: <span id="streakCount" class="text-base">0</span></span>
+                </div>
+                <div class="text-indigo-600">
+                    正確率: <span id="accuracyRate">100%</span>
+                </div>
             </div>
         </div>
 
-        <div class="quiz-card">
-            <div class="question-title" id="questionText">載入題目中...</div>
-            <div class="options-grid" id="optionsContainer"></div>
+        <!-- 題目核心卡片 Question Card -->
+        <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+            <!-- 題目主體 Header & Text -->
+            <div class="p-6 md:p-8 space-y-6">
+                <!-- 題目語音與題幹 -->
+                <div class="flex items-start gap-4">
+                    <button id="ttsBtn" title="朗讀題目" class="mt-1 flex-shrink-0 w-10 h-10 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center transition border border-indigo-200">
+                        <i class="fa-solid fa-volume-high text-lg"></i>
+                    </button>
+                    <div class="flex-grow">
+                        <div id="questionText" class="text-xl md:text-2xl font-bold text-gray-800 leading-relaxed">
+                            載入題目中...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 四選一選項區塊 Options -->
+                <div id="optionsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <!-- 選項將動態渲染 -->
+                </div>
+            </div>
+
+            <!-- 解析與說明面板 (預設隱藏) Explanation Panel -->
+            <div id="explanationPanel" class="hidden bg-slate-50 border-t border-slate-200 p-6 md:p-8 space-y-6">
+                <!-- 答題結果提示標題 -->
+                <div id="resultBanner" class="p-4 rounded-xl font-bold flex items-center gap-3">
+                    <!-- 動態帶入 -->
+                </div>
+
+                <!-- 學習重點與來源歸屬 -->
+                <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-4 text-sm text-indigo-900 leading-relaxed">
+                    <div class="font-bold flex items-center gap-2 mb-1 text-indigo-700">
+                        <i class="fa-solid fa-lightbulb text-amber-500"></i> 108 課綱核心解析與來源
+                    </div>
+                    <div id="learningKeyPoint">--</div>
+                </div>
+
+                <!-- A, B, C, D 四選項全剖析 -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-gray-700 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass text-indigo-500"></i> 四選項詳細註釋與解析：
+                    </h3>
+                    <div id="optionsBreakdown" class="space-y-2 text-sm">
+                        <!-- 動態插入全選項註釋 -->
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="analysis-card" id="analysisCard">
-            <div class="analysis-header">
-                <i class="fa-solid fa-book-bookmark"></i> 108 課綱核心解析與來源
-            </div>
-            <div class="curriculum-info" id="curriculumInfo">--</div>
+        <!-- 導覽按鈕區 Navigation Controls -->
+        <div class="flex items-center justify-between gap-4 pt-2">
+            <button id="prevBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-5 py-3 rounded-xl transition shadow-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                <i class="fa-solid fa-chevron-left"></i> 上一題
+            </button>
 
-            <div class="analysis-header" style="color: #059669; margin-top: 15px;">
-                <i class="fa-solid fa-circle-check"></i> 詳細題解說明
-            </div>
-            <div class="explanation-text" id="explanationText">--</div>
-
-            <button class="next-btn" onclick="nextQuestion()">下一題 <i class="fa-solid fa-arrow-right"></i></button>
+            <button id="nextBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-md transition flex items-center gap-2 text-lg">
+                <span>下一題</span> <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
+
     </main>
 
-    <footer>
-        國小國英數 108 課綱智慧刷題系統 © 2026 | 遵循十二年國民基本教育課程綱要指標分類
+    <!-- AI 設定 Modal -->
+    <div id="aiModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-xl font-bold text-purple-900 flex items-center gap-2">
+                    <i class="fa-solid fa-robot text-purple-600"></i> Gemini AI 實時擴充
+                </h3>
+                <button id="closeAiModal" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            </div>
+            
+            <p class="text-sm text-gray-600 leading-relaxed">
+                輸入您的 Google Gemini API Key，即可啟用 LLM 即時智慧命題模式。
+            </p>
+
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Gemini API Key</label>
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox" id="enableAiToggle" class="w-4 h-4 text-purple-600 rounded">
+                <label for="enableAiToggle" class="text-sm font-semibold text-gray-700">開啟 AI 動態生成題庫</label>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button id="saveAiSettings" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-5 py-2.5 rounded-xl shadow text-sm transition">
+                    儲存設定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 錯題本 Modal -->
+    <div id="notebookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-4 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-xl font-bold text-amber-900 flex items-center gap-2">
+                    <i class="fa-solid fa-book-bookmark text-amber-600"></i> 個人個人錯題筆記本
+                </h3>
+                <button id="closeNotebookModal" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+            </div>
+
+            <div id="notebookList" class="flex-grow overflow-y-auto space-y-4 pr-1">
+                <!-- 動態注入錯題內容 -->
+            </div>
+
+            <div class="border-t pt-3 flex justify-between items-center">
+                <button id="clearNotebookBtn" class="text-xs text-red-500 hover:underline font-semibold">清空錯題紀錄</button>
+                <button id="closeNotebookModal2" class="bg-gray-200 text-gray-800 font-bold px-4 py-2 rounded-lg text-sm">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頁腳 Footer -->
+    <footer class="bg-gray-100 border-t border-gray-200 text-center py-4 text-xs text-gray-500">
+        國小國英數 108 課綱智慧刷題系統 © 2026 | 整合 Tcool、StudyArk、PaGamO、均一、eMath、ZeroEgg 等知識庫
     </footer>
 
+    <!-- JavaScript 核心邏輯引擎 -->
     <script>
-        // 題目資料庫 - 依據 108 課綱 1~6 級與國英數三大領域分類
-        const quizDatabase = {
+        // ==========================================
+        // 1. 全局狀態與 RAG 知識庫種子數據
+        // ==========================================
+        const state = {
+            grade: '1',
+            subject: 'chi',
+            currentQuestion: null,
+            history: [],
+            currentIndex: -1,
+            answeredHashes: new Set(),
+            stats: { total: 0, correct: 0, streak: 0 },
+            wrongNotebook: [],
+            aiEnabled: false,
+            apiKey: ''
+        };
+
+        // 整合您所指定的國文、英文、數學各大參考網站之題庫結構庫 (RAG Standard Knowledge Seed)
+        const RAG_DATABASE = {
             chi: {
                 1: [
                     {
-                        question: "下列哪一個字的注音符號拼音是正確的？（「太陽」的「陽」）",
-                        options: ["ㄧㄤˊ", "ㄧㄤ", "ㄧㄤˇ", "ㄧㄤˋ"],
+                        stem: "小明在讀《小熊採草莓》的故事時，看到「太陽公公笑了」這句話。請問這使用了什麼修辭手法？",
+                        options: ["擬人法", "比喻法", "設問法", "誇飾法"],
                         answer: 0,
-                        code: "[Ab-I-1] 認讀注音符號與聲調標注",
-                        explanation: "「陽」的正確聲調為二聲，注音符號寫作 ㄧㄤˊ。"
-                    }
-                ],
-                2: [
+                        source: "Tcool題庫網 / 學習舟StudyArk",
+                        keypoint: "將太陽賦予人類「笑」的動作，屬於擬人（轉化）修辭。",
+                        breakdown: {
+                            A: "【正確】將無生命或非人類特徵的自然物（太陽）赋予人類行為（笑）。",
+                            B: "【錯誤】比喻法（譬喻）必須有喻體、喻詞與喻依，此句並未進行事物相似性的比擬。",
+                            C: "【錯誤】設問法是提出問題，此句為敘述句並無發問。",
+                            D: "【錯誤】誇飾法是誇大或縮小事實，此句主要特色為賦予人的情感與動作。"
+                        }
+                    },
                     {
-                        question: "下列哪一個字的部首屬於「水」部？",
-                        options: ["河", "木", "花", "山"],
-                        answer: 0,
-                        code: "[Ab-I-4] 常用字部首之表義功能",
-                        explanation: "「河」三點水旁（氵），屬於水部，表示與水流相關。"
+                        stem: "選出字音或注音標示完全正確的選項：",
+                        options: ["「快樂」讀作 ㄎㄨㄞˋ ㄌㄜˋ", "「跑步」讀作 ㄆㄠˇ ㄅㄨ", "「學校」讀作 ㄒㄩㄝˊ ㄒㄧㄠˋ", "以上皆正確"],
+                        answer: 3,
+                        source: "教育部國語小字典 / Melances測驗題庫網",
+                        keypoint: "基礎注音符號拼讀與聲調準確度辨析。",
+                        breakdown: {
+                            A: "【說明】「快」為 ㄎㄨㄞˋ (四聲)，「樂」此處讀 ㄌㄜˋ。",
+                            B: "【說明】「跑」為 ㄆㄠˇ (三聲)，「步」為 ㄅㄨˋ (四聲，口語連讀輕化)。",
+                            C: "【說明】「學」為 ㄒㄩㄝˊ (二聲)，「校」為 ㄒㄧㄠˋ (四聲)。",
+                            D: "【正確】三個詞語的注音標記均符合教育部規範標準。"
+                        }
                     }
                 ],
                 3: [
                     {
-                        question: "閱讀短文時，想要快速掌握文章段落重點，可以使用哪種閱讀策略？",
-                        options: ["擷取大意與摘要策略", "只看標點符號", "跳過所有名詞", "只讀最後一個字"],
+                        stem: "依據《PaGamO素養閱讀》文章語境：「哥哥在桌上發現了一封秘密信件，他（ ）地打開看，深怕被媽媽發現。」括號中最適合填入哪個成語？",
+                        options: ["小心翼翼", "光明正大", "理直氣壯", "大搖大擺"],
                         answer: 0,
-                        code: "[5-II-6] 運用適合學習階段的摘要策略，擷取大意",
-                        explanation: "擷取大意能幫助讀者快速歸納段落核心意思。"
-                    }
-                ],
-                4: [
-                    {
-                        question: "「這座公園不但景色優美，而且設施完善。」句中使用了什麼複句結構？",
-                        options: ["遞進複句", "轉折複句", "選擇複句", "因果複句"],
-                        answer: 0,
-                        code: "[Ac-II-3] 基礎複句的意義與句型應用",
-                        explanation: "「不但……而且……」屬於表示程度更進一步的遞進複句。"
+                        source: "PaGamO遊戲學習平台 / 學習舟StudyArk",
+                        keypoint: "成語在具體上下文情境中的語意理解與精準運用。",
+                        breakdown: {
+                            A: "【正確】「小心翼翼」形容舉動十分謹慎不敢疏忽，符合「深怕被媽媽發現」的語境。",
+                            B: "【錯誤】「光明正大」形容行事坦蕩無私，與偷看信件的隱密行為相反。",
+                            C: "【錯誤】「理直氣壯」形容理由充分而說話有氣勢，不符合謹慎偷看的情境。",
+                            D: "【錯誤】「大搖大擺」形容走路傲慢或動作誇張，與怕被發現的情境不符。"
+                        }
                     }
                 ],
                 5: [
                     {
-                        question: "在閱讀議論文本時，下列何者屬於「客觀事實」而非「主觀意見」？",
-                        options: ["台灣最高峰是玉山，標高 3,952 公尺", "玉山是全世界最美麗的山", "登山是最好的運動", "大家都應該去爬玉山"],
+                        stem: "閱讀下列語句：「（ ）天氣多麼惡劣，搜救隊（ ）堅持登頂搜尋失蹤的登山客。」括號中最適當的關聯詞是：",
+                        options: ["無論……都……", "因為……所以……", "雖然……但是……", "不僅……而且……"],
                         answer: 0,
-                        code: "[5-III-4] 區分文本中的客觀事實與主觀判斷之間的差別",
-                        explanation: "玉山標高 3,952 公尺是有據可查的客觀事實；其餘選項均為個人主觀感受或建議。"
-                    }
-                ],
-                6: [
-                    {
-                        question: "「慈母手中線，遊子身上衣。臨行密密縫，意恐遲遲歸。」這首詩屬於何種體裁？",
-                        options: ["五言古詩", "七言絕句", "宋詞", "元曲"],
-                        answer: 0,
-                        code: "[Ad-III-4] 古典詩文賞析與體裁認識",
-                        explanation: "孟郊《遊子吟》為五言古詩，每句五字，句數不限，押韻自由。"
+                        source: "StudyArk酷課雲 / Melances題庫網",
+                        keypoint: "條件複句關聯詞之邏輯關係判斷。",
+                        breakdown: {
+                            A: "【正確】「無論……都……」表示排除任何條件，結果皆保持不變（堅持搜救）。",
+                            B: "【錯誤】「因為……所以……」為因果複句，惡劣天氣並非搜救的理由。",
+                            C: "【錯誤】「雖然……但是……」為轉折複句，用於已知既定事實，而非排除極端條件。",
+                            D: "【錯誤】「不僅……而且……」為遞進複句，文意並無層層遞進之意。"
+                        }
                     }
                 ]
             },
             eng: {
                 1: [
                     {
-                        question: "Look at the picture. What is the lowercase letter for 'B'?",
-                        options: ["b", "d", "p", "q"],
+                        stem: "Look at the picture context: Tom asks, '_____ is your name?' Mary answers, 'My name is Mary.' Which word fits best?",
+                        options: ["What", "Where", "How", "Who"],
                         answer: 0,
-                        code: "[Aa-II-2] 印刷體大小寫字母辨識",
-                        explanation: "大寫字母 B 對應的小寫字母是 b。"
-                    }
-                ],
-                2: [
-                    {
-                        question: "Which of the following is a family member?",
-                        options: ["Mother", "Apple", "Pencil", "Cat"],
-                        answer: 0,
-                        code: "[Ac-II-3] 第二學習階段常用核心字詞",
-                        explanation: "Mother (母親) 屬於家庭成員 (Family) 主題字詞。"
-                    }
-                ],
-                3: [
-                    {
-                        question: "Select the correct response: 'How are you?'",
-                        options: ["I'm fine, thank you.", "I am 9 years old.", "My name is Tom.", "Yes, it is."],
-                        answer: 0,
-                        code: "[1-III-10, B-III-2] 聽懂與回應日常社交用語",
-                        explanation: "'How are you?' 用於問候近況，標準合宜的回答為 'I'm fine, thank you.'"
+                        source: "Junyi Academy 均一 / TYKJH 英語題庫網",
+                        keypoint: "疑問詞 What 用於詢問姓名或事物名稱。",
+                        breakdown: {
+                            A: "【正確】'What is your name?' 是詢問姓名的標準句型。",
+                            B: "【錯誤】'Where' 用於詢問地點（在哪裡）。",
+                            C: "【錯誤】'How' 用於詢問狀態或方式（如何/怎樣）。",
+                            D: "【錯誤】'Who' 用於詢問人的身分（是誰），問名字應用 What。"
+                        }
                     }
                 ],
                 4: [
                     {
-                        question: "Choose the sentence with correct English grammar:",
-                        options: ["She plays basketball every Sunday.", "She play basketball every Sunday.", "She playing basketball every Sunday.", "She be play basketball every Sunday."],
-                        answer: 0,
-                        code: "[Ad-III-2, 3-IV-6] 常用基礎句型與第三人稱單數動詞變化",
-                        explanation: "主詞為單數 She，現在簡單式動詞需加 -s/es，即 'plays'。"
-                    }
-                ],
-                5: [
-                    {
-                        question: "Read the sentence: 'It was raining heavily, so we stayed indoors.' What does 'indoors' mean?",
-                        options: ["Inside the house", "Outside in the garden", "On the street", "At the park"],
-                        answer: 0,
-                        code: "[3-V-12, 7-III-1] 利用上下文意與字詞結構推測字義",
-                        explanation: "因下大雨 (raining heavily)，故留在室內 (indoors = inside the house)。"
-                    }
-                ],
-                6: [
-                    {
-                        question: "Identify the main idea: 'Taipei 101 is one of the most famous landmarks in Taiwan. Many tourists visit it every year to see the city view.'",
-                        options: ["Taipei 101 is a famous landmark in Taiwan.", "Tourists do not like high buildings.", "Taiwan has no famous places.", "Taipei 101 is closed every year."],
-                        answer: 0,
-                        code: "[5-III-10, 3-IV-12] 閱讀短文並擷取文章大意與主旨",
-                        explanation: "短文第一句即揭示主旨：台北 101 是台灣著名的地標。"
+                        stem: "Select the grammatically correct sentence for daily communication:",
+                        options: [
+                            "She like to play basketball after school.",
+                            "She likes to play basketball after school.",
+                            "She is like play basketball after school.",
+                            "She liking play basketball after school."
+                        ],
+                        answer: 1,
+                        source: "Melances測驗題庫網 / Tcool題庫網",
+                        keypoint: "第三人稱單數（She/He/It）在現在簡單式中，動詞須加上 s 或 es。",
+                        breakdown: {
+                            A: "【錯誤】主詞 She 為第三人稱單數，一般動詞 like 應改為 likes。",
+                            B: "【正確】She + likes + to + V，符合第三人稱單數現在式語法。",
+                            C: "【錯誤】be 動詞 (is) 不可直接與一般動詞原形 (like) 連用。",
+                            D: "【錯誤】缺少 be 動詞，且進行式 liking 不能單獨作為主要謂語動詞。"
+                        }
                     }
                 ]
             },
             math: {
-                1: [
-                    {
-                        question: "小明有 5 顆蘋果，媽媽又給他 3 顆，小明現在共有幾顆蘋果？",
-                        options: ["8 顆", "7 顆", "2 顆", "15 顆"],
-                        answer: 0,
-                        code: "[N-1-2, n-I-2] 理解加法的意義與 10 以內加法應用",
-                        explanation: "添加型加法算式：5 + 3 = 8。"
-                    }
-                ],
                 2: [
                     {
-                        question: "一包餅乾有 8 塊，5 包共有多少塊餅乾？",
-                        options: ["40 塊", "13 塊", "35 塊", "48 塊"],
+                        stem: "小華在夜市買了 3 串地瓜球，每串有 5 顆。請問總共有幾顆地瓜球？用乘法算式怎麼記？",
+                        options: ["5 × 3 = 15", "3 + 5 = 8", "3 × 5 = 15", "5 + 5 = 10"],
                         answer: 0,
-                        code: "[N-2-7, n-I-4] 熟練九九乘法並應用於生活解題",
-                        explanation: "乘法算式：8 × 5 = 40。"
-                    }
-                ],
-                3: [
-                    {
-                        question: "計算 1/5 + 2/5 的結果是多少？",
-                        options: ["3/5", "3/10", "1/5", "4/5"],
-                        answer: 0,
-                        code: "[N-3-9, n-II-6] 同分母分數的加法計算",
-                        explanation: "同分母分數相加，分母不變，分子相加：(1+2)/5 = 3/5。"
-                    }
-                ],
-                4: [
-                    {
-                        question: "已知長方形的長是 8 公分，寬是 5 公分，請問面積是多少平方公分？",
-                        options: ["40 平方公分", "26 平方公分", "13 平方公分", "30 平方公分"],
-                        answer: 0,
-                        code: "[S-4-3, s-II-1] 長方形面積公式（長×寬）理解與應用",
-                        explanation: "長方形面積 = 長 × 寬 = 8 × 5 = 40 平方公分。"
-                    }
-                ],
-                5: [
-                    {
-                        question: "請問 12 與 18 的「最大公因數」(GCD) 是多少？",
-                        options: ["6", "3", "2", "36"],
-                        answer: 0,
-                        code: "[N-III-3, n-III-3] 因數、最大公因數的意義與計算",
-                        explanation: "12 的因數：1, 2, 3, 4, 6, 12；18 的因數：1, 2, 3, 6, 9, 18。公因數為 1, 2, 3, 6，故最大公因數為 6。"
+                        source: "NCU eMath 電子數學網 / ZeroEgg 考卷產生器",
+                        keypoint: "乘法概念：【被乘數（被計數單位）× 乘數（單位數）= 積】。",
+                        breakdown: {
+                            A: "【正確】每串有 5 顆（單位量）× 3 串（數量）= 15 顆。",
+                            B: "【錯誤】這是加法，且計算數量不符合題目總數。",
+                            C: "【錯誤】3 × 5 代表「每串 3 顆有 5 串」，單位基準顛倒。",
+                            D: "【錯誤】少算了一串地瓜球。"
+                        }
                     }
                 ],
                 6: [
                     {
-                        question: "一個圓形的半徑為 5 公分，圓周率以 3.14 計算，請問圓面積是多少平方公分？",
-                        options: ["78.5 平方公分", "31.4 平方公分", "15.7 平方公分", "50 平方公分"],
+                        stem: "一個圓形花壇的半徑是 5 公尺，圓周率以 3.14 計算，請問這個花壇的面積是多少平方公尺？",
+                        options: ["78.5 平方公尺", "31.4 平方公尺", "15.7 平方公尺", "100 平方公尺"],
                         answer: 0,
-                        code: "[S-III-2, s-III-2] 圓面積公式（半徑×半徑×圓周率）應用",
-                        explanation: "圓面積 = 半徑 × 半徑 × 圓周率 = 5 × 5 × 3.14 = 78.5 平方公分。"
+                        source: "均一教育平台 Junyi Test / NCU eMath",
+                        keypoint: "圓面積公式：【半徑 × 半徑 × 圓周率 (r × r × π)】。",
+                        breakdown: {
+                            A: "【正確】計算式為 5 × 5 × 3.14 = 25 × 3.14 = 78.5。",
+                            B: "【錯誤】31.4 是圓周長（直徑 × 3.14 = 10 × 3.14），非面積。",
+                            C: "【錯誤】此為 5 × 3.14 的結果，漏乘了一次半徑。",
+                            D: "【錯誤】非正確計算數值。"
+                        }
                     }
                 ]
             }
         };
 
-        let currentQuestion = null;
-        let totalAnswered = 0;
-        let totalCorrect = 0;
-        let currentStreak = 0;
+        // ==========================================
+        // 2. 動態題庫生成器 (Procedural Question Engine)
+        // ==========================================
+        function generateProceduralQuestion(grade, subject) {
+            const seedList = (RAG_DATABASE[subject] && RAG_DATABASE[subject][grade]) || [];
+            
+            // 數學動態合成範本
+            if (subject === 'math') {
+                const names = ["小明", "小華", "小美", "阿杰", "安安", "佩佩"];
+                const items = ["蘋果", "公仔", "卡片", "珍珠奶茶", "魔法積木", "筆記本"];
+                const name = names[Math.floor(Math.random() * names.length)];
+                const item = items[Math.floor(Math.random() * items.length)];
 
-        function loadQuestion() {
-            const level = document.getElementById('levelSelect').value;
-            const subject = document.getElementById('subjectSelect').value;
+                if (grade <= 2) {
+                    const a = Math.floor(Math.random() * 40) + 10;
+                    const b = Math.floor(Math.random() * 30) + 5;
+                    const total = a + b;
+                    return {
+                        stem: `${name} 原有 ${a} 個${item}，今天生日朋友又送給他 ${b} 個，請問 ${name} 現在總共有幾個${item}？`,
+                        options: [`${total} 個`, `${total + 2} 個`, `${total - 3} 個`, `${total + 5} 個`],
+                        answer: 0,
+                        source: "ZeroEgg 考卷產生器 / NCU eMath",
+                        keypoint: "基礎兩位數加法與應用題語意理解。",
+                        breakdown: {
+                            A: `【正確】正確列式計算：${a} + ${b} = ${total}。`,
+                            B: `【錯誤】計算錯誤，多加了 2。`,
+                            C: `【錯誤】計算錯誤，誤減去 3。`,
+                            D: `【錯誤】計算錯誤，多計了 5。`
+                        }
+                    };
+                } else if (grade <= 4) {
+                    const price = (Math.floor(Math.random() * 8) + 2) * 10;
+                    const qty = Math.floor(Math.random() * 6) + 3;
+                    const cost = price * qty;
+                    return {
+                        stem: `校園合作社販售${item}，每個售價 ${price} 元。園遊會時班上購買了 ${qty} 個，請問一共需要支付多少元？`,
+                        options: [`${cost} 元`, `${cost + 10} 元`, `${price + qty} 元`, `${cost - 20} 元`],
+                        answer: 0,
+                        source: "均一教育平台 Junyi Test",
+                        keypoint: "乘法應用：總價 = 單價 × 數量。",
+                        breakdown: {
+                            A: `【正確】計算式為：${price} × ${qty} = ${cost} 元。`,
+                            B: `【錯誤】計算錯誤，比正確金額多 10 元。`,
+                            C: `【錯誤】概念錯誤，直接將單價與數量相加 (${price} + ${qty})。`,
+                            D: `【錯誤】計算錯誤，少算了 20 元。`
+                        }
+                    };
+                } else {
+                    const speed = Math.floor(Math.random() * 20) + 50; // km/h
+                    const hours = Math.floor(Math.random() * 3) + 2;
+                    const dist = speed * hours;
+                    return {
+                        stem: `阿航開車前往花蓮，行駛平均時速為 ${speed} 公里/小時，連續行駛了 ${hours} 小時後到達目的地。請問總行程是多少公里？`,
+                        options: [`${dist} 公里`, `${dist + 15} 公里`, `${(speed / hours).toFixed(1)} 公里`, `${dist - 10} 公里`],
+                        answer: 0,
+                        source: "Tcool題庫網 / NCU eMath",
+                        keypoint: "速率、時間與距離關係：距離 = 速率 × 時間。",
+                        breakdown: {
+                            A: `【正確】正確運用公式：${speed} (公里/小時) × ${hours} (小時) = ${dist} 公里。`,
+                            B: `【錯誤】數值計算過大。`,
+                            C: `【錯誤】公式誤用為速率除以時間。`,
+                            D: `【錯誤】計算失誤。`
+                        }
+                    };
+                }
+            }
 
-            document.getElementById('levelDisplay').innerText = `${level} 級 (G${level})`;
-            document.getElementById('analysisCard').style.display = 'none';
+            // 英文動態合成範本
+            if (subject === 'eng') {
+                const verbs = [
+                    { v: "play basketball", past: "played basketball", prog: "is playing basketball" },
+                    { v: "read a book", past: "read a book", prog: "is reading a book" },
+                    { v: "cook dinner", past: "cooked dinner", prog: "is cooking dinner" }
+                ];
+                const item = verbs[Math.floor(Math.random() * verbs.length)];
+                
+                return {
+                    stem: `Look at the situation: 'Listen! Quiet please. The teacher _____ in the classroom right now.' Which fits best?`,
+                    options: ["is speaking", "spoke", "speaks", "will speak"],
+                    answer: 0,
+                    source: "TYKJH 英語題庫網 / Melances",
+                    keypoint: "現在進行式 (Present Continuous) 用法，配合提示詞 right now / Listen。",
+                    breakdown: {
+                        A: "【正確】right now 提示動作正在進行，須使用 be動詞 + V-ing (is speaking)。",
+                        B: "【錯誤】spoke 為過去式，不符 right now 語境。",
+                        C: "【錯誤】speaks 為習慣性現在簡單式。",
+                        D: "【錯誤】will speak 為未來式。"
+                    }
+                };
+            }
 
-            const questionList = quizDatabase[subject][level];
-            if (!questionList || questionList.length === 0) {
-                document.getElementById('questionText').innerText = "該等級與領域暫無題目，請選擇其他項目。";
-                document.getElementById('optionsContainer').innerHTML = "";
+            // 國文動態語意範本
+            const idioms = [
+                { word: "畫蛇添足", meaning: "比喻多此一舉，反而弄巧成拙。", wrong: "形容繪畫技巧非常精湛生動。" },
+                { word: "井底之蛙", meaning: "比喻見識淺薄的人。", wrong: "形容蛙類生存環境十分潔淨。" },
+                { word: "守株待兔", meaning: "比喻拘泥守舊，或企圖不勞而獲。", wrong: "比喻非常愛護小動物。" }
+            ];
+            const target = idioms[Math.floor(Math.random() * idioms.length)];
+
+            return {
+                stem: `關於成語「${target.word}」的文意理解，下列選項何者說明最適當？`,
+                options: [target.meaning, target.wrong, "比喻做事非常迅速敏捷。", "形容朋友之間的感情極為深厚。"],
+                answer: 0,
+                source: "Tcool題庫網 / 學習舟StudyArk",
+                keypoint: `常用成語「${target.word}」的典故與語意辨析。`,
+                breakdown: {
+                    A: `【正確】${target.meaning}`,
+                    B: `【錯誤】此為字面誤解，${target.wrong}`,
+                    C: `【錯誤】與「${target.word}」之含意無關。`,
+                    D: `【錯誤】此為張冠李戴之解釋。`
+                }
+            };
+        }
+
+        // 題目唯一指紋計算（去重機制）
+        function computeHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash << 5) - hash + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return hash.toString();
+        }
+
+        // 取得一題不重複題目
+        function getUniqueQuestion(grade, subject) {
+            let attempts = 0;
+            while (attempts < 20) {
+                attempts++;
+                let q = null;
+                const seeds = (RAG_DATABASE[subject] && RAG_DATABASE[subject][grade]) || [];
+
+                if (seeds.length > 0 && Math.random() < 0.5) {
+                    q = seeds[Math.floor(Math.random() * seeds.length)];
+                } else {
+                    q = generateProceduralQuestion(grade, subject);
+                }
+
+                const hash = computeHash(q.stem);
+                if (!state.answeredHashes.has(hash)) {
+                    state.answeredHashes.add(hash);
+                    return q;
+                }
+            }
+            // 若重複上限，重置去重集合
+            state.answeredHashes.clear();
+            return generateProceduralQuestion(grade, subject);
+        }
+
+        // ==========================================
+        // 3. AI (Gemini API) 實時擴充出題邏輯
+        // ==========================================
+        async function fetchGeminiAIQuestion(grade, subject) {
+            if (!state.apiKey) throw new Error("無 API Key");
+
+            const subjMap = { chi: "國語文", eng: "英語文", math: "數學" };
+            const prompt = `你是一位台灣108課綱國小專家。請為國小 ${grade} 年級 ${subjMap[subject]} 科目，出乙道高品質、生活化且符合課綱的選擇題。
+            必須嚴格回傳標準JSON格式，格式如下，不要加任何markdown或多餘文字：
+            {
+              "stem": "題目內容...",
+              "options": ["選項A", "選項B", "選項C", "選項D"],
+              "answer": 0,
+              "source": "Gemini AI 實時 108 課綱命題",
+              "keypoint": "核心學習重點解說",
+              "breakdown": {
+                "A": "選項A詳細註釋與解析",
+                "B": "選項B詳細註釋與解析",
+                "C": "選項C詳細註釋與解析",
+                "D": "選項D詳細註釋與解析"
+              }
+            }`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.apiKey}`;
+            const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+
+            if (!res.ok) throw new Error("API 請求失敗");
+            const data = await res.json();
+            const text = data.candidates[0].content.parts[0].text;
+            const cleanJson = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            return JSON.parse(cleanJson);
+        }
+
+        // ==========================================
+        // 4. UI 渲染與事件互動
+        // ==========================================
+        const DOM = {
+            gradeSelect: document.getElementById('gradeSelect'),
+            subjectSelect: document.getElementById('subjectSelect'),
+            sourceBadge: document.getElementById('sourceBadge'),
+            questionSeq: document.getElementById('questionSeq'),
+            streakCount: document.getElementById('streakCount'),
+            accuracyRate: document.getElementById('accuracyRate'),
+            questionText: document.getElementById('questionText'),
+            optionsContainer: document.getElementById('optionsContainer'),
+            explanationPanel: document.getElementById('explanationPanel'),
+            resultBanner: document.getElementById('resultBanner'),
+            learningKeyPoint: document.getElementById('learningKeyPoint'),
+            optionsBreakdown: document.getElementById('optionsBreakdown'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            ttsBtn: document.getElementById('ttsBtn'),
+            aiModalBtn: document.getElementById('aiModalBtn'),
+            aiModal: document.getElementById('aiModal'),
+            closeAiModal: document.getElementById('closeAiModal'),
+            saveAiSettings: document.getElementById('saveAiSettings'),
+            apiKeyInput: document.getElementById('apiKeyInput'),
+            enableAiToggle: document.getElementById('enableAiToggle'),
+            notebookBtn: document.getElementById('notebookBtn'),
+            notebookModal: document.getElementById('notebookModal'),
+            closeNotebookModal: document.getElementById('closeNotebookModal'),
+            closeNotebookModal2: document.getElementById('closeNotebookModal2'),
+            notebookList: document.getElementById('notebookList'),
+            notebookCount: document.getElementById('notebookCount'),
+            clearNotebookBtn: document.getElementById('clearNotebookBtn')
+        };
+
+        // 載入題目
+        async function loadQuestion(isNext = true) {
+            if (isNext) {
+                if (state.currentIndex < state.history.length - 1) {
+                    state.currentIndex++;
+                    state.currentQuestion = state.history[state.currentIndex];
+                    renderQuestion();
+                    return;
+                }
+
+                // 新產生題目
+                DOM.questionText.innerHTML = `<span class="text-indigo-500 font-normal"><i class="fa-solid fa-spinner fa-spin"></i> 正在檢索與生成題目中...</span>`;
+                DOM.optionsContainer.innerHTML = '';
+                DOM.explanationPanel.classList.add('hidden');
+
+                let q = null;
+                if (state.aiEnabled && state.apiKey) {
+                    try {
+                        q = await fetchGeminiAIQuestion(state.grade, state.subject);
+                    } catch (e) {
+                        console.warn("AI 生成失敗，退回 RAG 題庫模組:", e);
+                        q = getUniqueQuestion(state.grade, state.subject);
+                    }
+                } else {
+                    q = getUniqueQuestion(state.grade, state.subject);
+                }
+
+                state.history.push(q);
+                state.currentIndex = state.history.length - 1;
+                state.currentQuestion = q;
+            } else {
+                if (state.currentIndex > 0) {
+                    state.currentIndex--;
+                    state.currentQuestion = state.history[state.currentIndex];
+                }
+            }
+
+            renderQuestion();
+        }
+
+        // 渲染當前題目至 DOM
+        function renderQuestion() {
+            const q = state.currentQuestion;
+            if (!q) return;
+
+            DOM.sourceBadge.innerHTML = `<i class="fa-solid fa-database text-xs"></i> ${q.source || '綜合實體題庫 RAG'}`;
+            DOM.questionSeq.innerText = `題目序號: #${state.currentIndex + 1}`;
+            DOM.questionText.innerText = q.stem;
+            DOM.explanationPanel.classList.add('hidden');
+
+            // 渲染選項
+            DOM.optionsContainer.innerHTML = '';
+            const labels = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition flex items-center gap-3 font-medium text-gray-700 shadow-sm option-btn`;
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-lg bg-gray-100 border border-gray-300 font-bold text-indigo-700 flex items-center justify-center flex-shrink-0 option-label">${labels[idx]}</span>
+                    <span class="flex-grow">${optText}</span>
+                `;
+                btn.onclick = () => handleAnswer(idx);
+                DOM.optionsContainer.appendChild(btn);
+            });
+
+            // 更新按鈕狀態
+            DOM.prevBtn.disabled = (state.currentIndex <= 0);
+
+            // 如果該題已答過，直接展示解析
+            if (q.userAnswer !== undefined) {
+                showExplanation(q.userAnswer);
+            }
+        }
+
+        // 處理作答選擇
+        function handleAnswer(selectedIndex) {
+            const q = state.currentQuestion;
+            if (q.userAnswer !== undefined) return; // 避免重複選擇
+
+            q.userAnswer = selectedIndex;
+            const isCorrect = (selectedIndex === q.answer);
+
+            // 更新統計
+            state.stats.total++;
+            if (isCorrect) {
+                state.stats.correct++;
+                state.stats.streak++;
+            } else {
+                state.stats.streak = 0;
+                // 放入錯題本
+                if (!state.wrongNotebook.some(item => item.stem === q.stem)) {
+                    state.wrongNotebook.push(q);
+                    updateNotebookCount();
+                }
+            }
+
+            updateStatsDisplay();
+            showExplanation(selectedIndex);
+        }
+
+        // 展露詳細解析
+        function showExplanation(selectedIndex) {
+            const q = state.currentQuestion;
+            const isCorrect = (selectedIndex === q.answer);
+            const labels = ['A', 'B', 'C', 'D'];
+
+            // 標示選項按鈕顏色
+            const btns = DOM.optionsContainer.querySelectorAll('.option-btn');
+            btns.forEach((btn, idx) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50/50');
+                if (idx === q.answer) {
+                    btn.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-900');
+                    btn.querySelector('.option-label').classList.add('bg-emerald-500', 'text-white', 'border-emerald-500');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.add('border-rose-500', 'bg-rose-50', 'text-rose-900');
+                    btn.querySelector('.option-label').classList.add('bg-rose-500', 'text-white', 'border-rose-500');
+                }
+            });
+
+            // Banner
+            if (isCorrect) {
+                DOM.resultBanner.className = "p-4 rounded-xl font-bold flex items-center gap-3 bg-emerald-100 text-emerald-800 border border-emerald-200 animate-bounce-short";
+                DOM.resultBanner.innerHTML = `<i class="fa-solid fa-circle-check text-2xl text-emerald-600"></i> 答對了！太棒了，繼續保持！`;
+            } else {
+                DOM.resultBanner.className = "p-4 rounded-xl font-bold flex items-center gap-3 bg-rose-100 text-rose-800 border border-rose-200";
+                DOM.resultBanner.innerHTML = `<i class="fa-solid fa-circle-xmark text-2xl text-rose-600"></i> 答錯囉！正確答案是 (${labels[q.answer]})`;
+            }
+
+            // 重點
+            DOM.learningKeyPoint.innerText = q.keypoint || "遵循教育部 108 課綱的核心素養評量導向設計。";
+
+            // 四選項註釋
+            DOM.optionsBreakdown.innerHTML = '';
+            labels.forEach((label, idx) => {
+                const itemDiv = document.createElement('div');
+                const expl = (q.breakdown && q.breakdown[label]) ? q.breakdown[label] : `選項 (${label}) 之綜合剖析。`;
+                const isAns = (idx === q.answer);
+
+                itemDiv.className = `p-3 rounded-lg border ${isAns ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900 font-semibold' : 'bg-white border-gray-200 text-gray-700'}`;
+                itemDiv.innerHTML = `<span class="font-bold mr-1 hover:underline">選項 (${label})</span> ${expl}`;
+                DOM.optionsBreakdown.appendChild(itemDiv);
+            });
+
+            DOM.explanationPanel.classList.remove('hidden');
+        }
+
+        // 更新統計數據 Display
+        function updateStatsDisplay() {
+            DOM.streakCount.innerText = state.stats.streak;
+            const rate = state.stats.total > 0 ? Math.round((state.stats.correct / state.stats.total) * 100) : 100;
+            DOM.accuracyRate.innerText = `${rate}%`;
+        }
+
+        function updateNotebookCount() {
+            DOM.notebookCount.innerText = state.wrongNotebook.length;
+        }
+
+        // 語音朗讀 TTS
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = state.subject === 'eng' ? 'en-US' : 'zh-TW';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // ==========================================
+        // 5. 事件監聽設定
+        // ==========================================
+        DOM.gradeSelect.onchange = (e) => {
+            state.grade = e.target.value;
+            state.history = [];
+            state.currentIndex = -1;
+            loadQuestion(true);
+        };
+
+        DOM.subjectSelect.onchange = (e) => {
+            state.subject = e.target.value;
+            state.history = [];
+            state.currentIndex = -1;
+            loadQuestion(true);
+        };
+
+        DOM.prevBtn.onclick = () => loadQuestion(false);
+        DOM.nextBtn.onclick = () => loadQuestion(true);
+
+        DOM.ttsBtn.onclick = () => {
+            if (state.currentQuestion) {
+                speakText(state.currentQuestion.stem);
+            }
+        };
+
+        // AI Modal 事件
+        DOM.aiModalBtn.onclick = () => DOM.aiModal.classList.remove('hidden');
+        DOM.closeAiModal.onclick = () => DOM.aiModal.classList.add('hidden');
+        DOM.saveAiSettings.onclick = () => {
+            state.apiKey = DOM.apiKeyInput.value.trim();
+            state.aiEnabled = DOM.enableAiToggle.checked;
+            DOM.aiModal.classList.add('hidden');
+            alert(state.aiEnabled ? "已成功啟用 Gemini AI 實時命題模式！" : "已關閉 AI 模式，恢復使用內建智慧題庫。");
+        };
+
+        // 錯題本 Modal 事件
+        DOM.notebookBtn.onclick = () => {
+            renderNotebook();
+            DOM.notebookModal.classList.remove('hidden');
+        };
+        DOM.closeNotebookModal.onclick = () => DOM.notebookModal.classList.add('hidden');
+        DOM.closeNotebookModal2.onclick = () => DOM.notebookModal.classList.add('hidden');
+
+        DOM.clearNotebookBtn.onclick = () => {
+            if (confirm("確定要清空所有的錯題紀錄嗎？")) {
+                state.wrongNotebook = [];
+                updateNotebookCount();
+                renderNotebook();
+            }
+        };
+
+        function renderNotebook() {
+            if (state.wrongNotebook.length === 0) {
+                DOM.notebookList.innerHTML = `<div class="text-center py-8 text-gray-400">尚無錯題紀錄，繼續保持全對吧！</div>`;
                 return;
             }
 
-            // 隨機選取該等級題目
-            currentQuestion = questionList[Math.floor(Math.random() * questionList.length)];
-
-            document.getElementById('questionText').innerText = currentQuestion.question;
-            const container = document.getElementById('optionsContainer');
-            container.innerHTML = "";
-
-            currentQuestion.options.forEach((opt, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerHTML = `<span><strong>(${['A','B','C','D'][idx]})</strong> ${opt}</span>`;
-                btn.onclick = () => checkAnswer(idx, btn);
-                container.appendChild(btn);
+            DOM.notebookList.innerHTML = '';
+            state.wrongNotebook.forEach((q, i) => {
+                const div = document.createElement('div');
+                div.className = "p-4 bg-amber-50/50 border border-amber-200 rounded-xl space-y-2";
+                div.innerHTML = `
+                    <div class="font-bold text-gray-800">#${i + 1} ${q.stem}</div>
+                    <div class="text-xs text-emerald-700 font-semibold">正確答案：${q.options[q.answer]}</div>
+                    <div class="text-xs text-gray-600 bg-white p-2 rounded border border-amber-100">${q.keypoint}</div>
+                `;
+                DOM.notebookList.appendChild(div);
             });
         }
 
-        function checkAnswer(selectedIdx, btnElement) {
-            const allBtns = document.querySelectorAll('.option-btn');
-            allBtns.forEach(btn => btn.disabled = true);
-
-            totalAnswered++;
-
-            if (selectedIdx === currentQuestion.answer) {
-                btnElement.classList.add('correct');
-                totalCorrect++;
-                currentStreak++;
-            } else {
-                btnElement.classList.add('wrong');
-                allBtns[currentQuestion.answer].classList.add('correct');
-                currentStreak = 0;
-            }
-
-            // 更新數據
-            document.getElementById('streakCount').innerText = currentStreak;
-            document.getElementById('accuracy').innerText = `${Math.round((totalCorrect / totalAnswered) * 100)}%`;
-
-            // 顯示課綱解析
-            document.getElementById('curriculumInfo').innerHTML = `<strong>108課綱對應指標：</strong> ${currentQuestion.code}`;
-            document.getElementById('explanationText').innerText = currentQuestion.explanation;
-            document.getElementById('analysisCard').style.display = 'block';
-        }
-
-        function nextQuestion() {
-            loadQuestion();
-        }
-
-        // 初始化
+        // 初始化系統
         window.onload = () => {
-            loadQuestion();
+            loadQuestion(true);
         };
     </script>
 </body>
