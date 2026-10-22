@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國小全學年 國英數動態刷題學習系統 (108課綱範本)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            user-select: none;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.1), 0 8px 10px -6px rgba(14, 165, 233, 0.1);
+        }
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-card:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800 min-h-screen flex flex-col justify-between antialiased">
+
+    <!-- Top Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <!-- Logo & Title -->
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-sky-500 to-indigo-600 text-white p-2.5 rounded-2xl shadow-md">
+                    <i class="fa-solid font-bold fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-800 leading-tight">國小國英數智慧刷題庫</h1>
+                    <p class="text-xs text-sky-600 font-medium">依據 108 課綱與國教院題庫架構設計</p>
+                </div>
+            </div>
+
+            <!-- Selectors -->
+            <div class="flex flex-wrap items-center gap-2 text-sm">
+                <!-- Grade Selector -->
+                <div class="relative">
+                    <select id="gradeSelect" onchange="changeFilter()" class="bg-slate-100 border border-slate-300 text-slate-700 font-bold py-1.5 px-3 pr-8 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <option value="1">一年級 (G1)</option>
+                        <option value="2">二年級 (G2)</option>
+                        <option value="3">三年級 (G3)</option>
+                        <option value="4">四年級 (G4)</option>
+                        <option value="5">五年級 (G5)</option>
+                        <option value="6">六年級 (G6)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-2.5 top-3 text-xs text-slate-500 pointer-events-none"></i>
+                </div>
+
+                <!-- Subject Selector -->
+                <div class="relative">
+                    <select id="subjectSelect" onchange="changeFilter()" class="bg-slate-100 border border-slate-300 text-slate-700 font-bold py-1.5 px-3 pr-8 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <option value="math">🧮 數學領域</option>
+                        <option value="chi">📖 國語領域</option>
+                        <option value="eng">🔤 英語領域</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-2.5 top-3 text-xs text-slate-500 pointer-events-none"></i>
+                </div>
+
+                <!-- Stats Drawer Button -->
+                <button onclick="toggleStatsModal()" class="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>學習戰報</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Practice Area -->
+    <main class="max-w-4xl w-full mx-auto px-4 py-6 flex-grow flex flex-col justify-center">
+
+        <!-- Status & Score Bar -->
+        <div class="flex items-center justify-between mb-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm text-sm">
+            <div class="flex items-center gap-4">
+                <span class="text-xs font-bold px-3 py-1 bg-sky-100 text-sky-800 rounded-full" id="tagBadge">
+                    <i class="fa-solid fa-tag mr-1"></i>載入中...
+                </span>
+                <span class="text-slate-500 text-xs font-semibold" id="questionIndex">題目序號: #1</span>
+            </div>
+            <div class="flex items-center gap-4 font-bold">
+                <div class="text-emerald-600 flex items-center gap-1" title="連續答對">
+                    <i class="fa-solid fa-fire text-amber-500"></i>
+                    <span id="streakCount">0</span> 連勝
+                </div>
+                <div class="text-slate-700">
+                    正確率: <span id="accuracyRate" class="text-sky-600">100%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Card -->
+        <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 custom-shadow relative mb-6">
+            
+            <!-- TTS Button & Topic Header -->
+            <div class="flex justify-between items-start gap-4 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-lg" id="topicName">單元主題</span>
+                </div>
+                <button onclick="speakQuestion()" class="text-slate-400 hover:text-sky-600 p-2 rounded-full hover:bg-sky-50 transition" title="朗讀題目">
+                    <i class="fa-solid fa-volume-high text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Question Stem Text -->
+            <div class="text-lg md:text-xl font-bold text-slate-800 mb-6 leading-relaxed" id="questionStem">
+                題目載入中，請稍候...
+            </div>
+
+            <!-- Options Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6" id="optionsContainer">
+                <!-- Dynamic Options inserted here -->
+            </div>
+
+            <!-- Explanation & Rationale Section (Hidden by default, shown after answering) -->
+            <div id="explanationBox" class="hidden mt-6 p-5 rounded-2xl bg-slate-50 border border-slate-200 transition-all">
+                <div class="flex items-center gap-2 font-bold mb-3" id="resultStatusHeader">
+                    <!-- Correct/Wrong indicator -->
+                </div>
+
+                <!-- Learning Focus -->
+                <div class="text-xs font-bold text-slate-500 mb-3 bg-white p-2.5 rounded-xl border border-slate-200" id="learningFocus">
+                    💡 學習重點：...
+                </div>
+
+                <!-- Comprehensive Option Annotations (Mandatory Requirement) -->
+                <div class="text-sm font-bold text-slate-700 mb-2">🔍 四選項詳細註釋與解析：</div>
+                <div class="space-y-2 text-xs md:text-sm" id="optionExplanationsList">
+                    <!-- Option A, B, C, D explanations rendered dynamically -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Navigation Controls -->
+        <div class="flex items-center justify-between gap-3">
+            <button id="prevBtn" onclick="prevQuestion()" disabled class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed font-bold px-5 py-3 rounded-2xl shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>上一題</span>
+            </button>
+
+            <button onclick="rerollQuestion()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-3 rounded-2xl shadow-md transition flex items-center gap-1.5" title="產生同題型全新隨機變換題目">
+                <i class="fa-solid fa-dice text-lg"></i>
+                <span class="hidden sm:inline">換一題 (全新變換)</span>
+            </button>
+
+            <button id="nextBtn" onclick="nextQuestion()" class="bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold px-6 py-3 rounded-2xl shadow-md transition flex items-center gap-2">
+                <span>下一題</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Stats Modal Drawer -->
+    <div id="statsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-sky-500"></i>
+                    個人學習統計戰報
+                </h3>
+                <button onclick="toggleStatsModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-sky-50 p-4 rounded-2xl text-center border border-sky-100">
+                    <div class="text-xs text-sky-600 font-bold mb-1">已答題數</div>
+                    <div class="text-2xl font-black text-sky-800" id="totalAnsweredCount">0</div>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-2xl text-center border border-emerald-100">
+                    <div class="text-xs text-emerald-600 font-bold mb-1">答對題數</div>
+                    <div class="text-2xl font-black text-emerald-800" id="correctAnsweredCount">0</div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl mb-4 text-xs space-y-2 border border-slate-200">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">當前最高連勝：</span>
+                    <span class="font-bold text-slate-700" id="maxStreak">0 題</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">國文完成題數：</span>
+                    <span class="font-bold text-slate-700" id="chiCount">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">英文完成題數：</span>
+                    <span class="font-bold text-slate-700" id="engCount">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">數學完成題數：</span>
+                    <span class="font-bold text-slate-700" id="mathCount">0</span>
+                </div>
+            </div>
+
+            <button onclick="resetStats()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 rounded-xl transition text-xs mb-2">
+                重置學習紀錄
+            </button>
+            <button onclick="toggleStatsModal()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl transition text-sm">
+                返回練習
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-lg opacity-0 transition pointer-events-none z-50">
+        通知訊息
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400">
+        國小國英數 108 課綱 RAG 動態題庫系統 &copy; 2026 | 設計用於學生作業練習與適性刷題
+    </footer>
+
+    <!-- Core Dynamic Question Generator Script -->
+    <script>
+        // --- State Management ---
+        let currentGrade = 1;
+        let currentSubject = 'math';
+        let questionHistory = []; // Stack for Previous/Next
+        let historyIndex = -1;
+        let stats = {
+            total: 0,
+            correct: 0,
+            streak: 0,
+            maxStreak: 0,
+            chi: 0,
+            eng: 0,
+            math: 0
+        };
+
+        // --- Helper Utilities ---
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function sample(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function shuffle(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => toast.classList.add('opacity-0'), 2200);
+        }
+
+        // --- RAG & Procedural Generators Library ---
+        // Dynamically creates unique questions, stems, unique choices, and comprehensive annotations for options A, B, C, D
+
+        // 1. MATHEMATICS GENERATOR
+        const mathGenerators = {
+            1: [ // Grade 1: 100以內加減法, 幾何與時間錢幣
+                () => {
+                    const names = ['小明', '小華', '美美', '阿強', '小玉'];
+                    const items = ['顆蘋果', '支鉛筆', '張貼紙', '塊餅乾', '本故事書'];
+                    const name = sample(names); const item = sample(items);
+                    const a = randInt(12, 45); const b = randInt(15, 45);
+                    const correctAns = a + b;
+                    const stem = `${name} 原本有 ${a} ${item}，今天媽媽又送給他 ${b} ${item}，請問 ${name} 現在總共有幾${item}？`;
+                    
+                    const opts = [
+                        { text: `${correctAns} ${item.substring(1)}`, correct: true, exp: `【正確】${a} + ${b} = ${correctAns}。十位相加(${Math.floor(a/10)}+${Math.floor(b/10)})加上個位相加進位，計算正確！` },
+                        { text: `${correctAns - 10} ${item.substring(1)}`, correct: false, exp: `【錯誤】此選項計算時漏掉了十位的進位 10。` },
+                        { text: `${correctAns + 2} ${item.substring(1)}`, correct: false, exp: `【錯誤】個位數計算不精確（${a%10} + ${b%10} 算錯了）。` },
+                        { text: `${Math.abs(a - b)} ${item.substring(1)}`, correct: false, exp: `【錯誤】這是減法的結果（${Math.max(a,b)} - ${Math.min(a,b)}），題目詢問的是「總共」，應該用加法。` }
+                    ];
+                    return { topic: '100以內加法', stem, options: shuffle(opts), focus: '掌握兩位數不進位與進位加法的基本演算技巧。' };
+                },
+                () => {
+                    const h = randInt(1, 12);
+                    const isHalf = Math.random() > 0.5;
+                    const timeStr = isHalf ? `${h} 點半 (${h}:30)` : `${h} 點整 (${h}:00)`;
+                    const stem = `時針指向 ${h} 與 ${h === 12 ? 1 : h + 1} 之間，分針指在數字 ${isHalf ? '6' : '12'} 上，請問現在是幾點鐘？`;
+                    const opts = [
+                        { text: timeStr, correct: true, exp: `【正確】分針指在 ${isHalf ? '6 表示 30 分 (半點)' : '12 表示 00 分 (整點)'}。` },
+                        { text: `${h === 12 ? 1 : h + 1} 點整`, correct: false, exp: `【錯誤】此時時針尚未走到下一個整點數。` },
+                        { text: `${h} 點 15 分`, correct: false, exp: `【錯誤】分針指在數字 3 才是 15 分。` },
+                        { text: `${h === 1 ? 12 : h - 1} 點半`, correct: false, exp: `【錯誤】看錯了時針的位置。` }
+                    ];
+                    return { topic: '鐘面與時間報讀', stem, options: shuffle(opts), focus: '觀察鐘面上時針與分針的位置關係與時間讀法。' };
+                }
+            ],
+            2: [ // Grade 2: 九九乘法, 兩步驟運算, 分數初步
+                () => {
+                    const a = randInt(3, 9); const b = randInt(4, 9);
+                    const total = a * b;
+                    const items = ['盒巧克力', '包彩色筆', '袋小蛋糕'];
+                    const item = sample(items);
+                    const stem = `一${item}有 ${b} 個，老師買了 ${a} ${item}，分給小朋友後，請問總共有幾個巧克力/用品？`;
+                    const opts = [
+                        { text: `${total} 個`, correct: true, exp: `【正確】運用乘法口訣：${a} × ${b} = ${total}。` },
+                        { text: `${a + b} 個`, correct: false, exp: `【錯誤】误將乘法題型算成加法（${a} + ${b} = ${a+b}）。` },
+                        { text: `${total - b} 個`, correct: false, exp: `【錯誤】少算了一${item}（這是 ${a-1} × ${b} 的結果）。` },
+                        { text: `${total + a} 個`, correct: false, exp: `【錯誤】計算過程混淆了乘數與被乘數。` }
+                    ];
+                    return { topic: '乘法概念與應用', stem, options: shuffle(opts), focus: '理解「幾的幾倍」即為乘法意義並熟練九九乘法。' };
+                }
+            ],
+            3: [ // Grade 3: 四則運算、同分母分數加減、面積
+                () => {
+                    const den = sample([4, 5, 6, 8, 10]);
+                    const num1 = randInt(1, den - 2);
+                    const num2 = randInt(1, den - num1);
+                    const sum = num1 + num2;
+                    const stem = `小華吃了一盒披薩的 ${num1}/${den}，小明吃了同盒披薩的 ${num2}/${den}，兩人一共吃了幾盒披薩？`;
+                    const opts = [
+                        { text: `${sum}/${den} 盒`, correct: true, exp: `【正確】同分母分數相加，分母不變 (${den})，分子相加 (${num1} + ${num2} = ${sum})。` },
+                        { text: `${sum}/${den * 2} 盒`, correct: false, exp: `【錯誤】常見錯誤！同分母相加時，分母不能直接相加。` },
+                        { text: `${Math.abs(num1 - num2)}/${den} 盒`, correct: false, exp: `【錯誤】這是相差的數量（減法），題目要求「一共」。` },
+                        { text: `1 盒`, correct: false, exp: `【錯誤】兩者相加尚未達到完整的一盒 (1 = ${den}/${den})。` }
+                    ];
+                    return { topic: '簡單同分母分數加法', stem, options: shuffle(opts), focus: '理解分數加法中「計數單位（分子）」相加而整體分段（分母）不變。' };
+                }
+            ],
+            4: [ // Grade 4: 概數、四捨五入、角度與面積
+                () => {
+                    const num = randInt(12345, 98765);
+                    const roundThousand = Math.round(num / 1000) * 1000;
+                    const stem = `某展覽會共有 ${num.toLocaleString()} 人次參觀。如果使用「四捨五入法」取概數到「千位」，是多少人？`;
+                    const hundredDigit = Math.floor((num % 1000) / 100);
+                    const opts = [
+                        { text: `${roundThousand.toLocaleString()} 人`, correct: true, exp: `【正確】看百位數字為 ${hundredDigit}，${hundredDigit >= 5 ? '大於等於5故向千位進1' : '小於5故直接捨去'}，結果為 ${roundThousand.toLocaleString()}。` },
+                        { text: `${(Math.floor(num / 1000) * 1000).toLocaleString()} 人`, correct: false, exp: `【錯誤】這是「無條件捨去法」到千位結果。` },
+                        { text: `${(Math.ceil(num / 1000) * 1000).toLocaleString()} 人`, correct: false, exp: `【錯誤】這是「無條件進入法」到千位結果。` },
+                        { text: `${(Math.round(num / 100) * 100).toLocaleString()} 人`, correct: false, exp: `【錯誤】取概數取到了「百位」而非題目要求的「千位」。` }
+                    ];
+                    return { topic: '概數與四捨五入', stem, options: shuffle(opts), focus: '掌握取概數時指定位數與下一位數（四捨五入判斷位）的規則。' };
+                }
+            ],
+            5: [ // Grade 5: 因數與倍數、異分母加減、三角形面積
+                () => {
+                    const base = randInt(6, 15);
+                    const height = randInt(4, 12);
+                    const area = (base * height) / 2;
+                    const stem = `有一個三角形，底長為 ${base} 公分，高為 ${height} 公分，請問這個三角形的面積是多少平方公分？`;
+                    const opts = [
+                        { text: `${area} 平方公分`, correct: true, exp: `【正確】三角形面積公式 = (底 × 高) ÷ 2 = (${base} × ${height}) ÷ 2 = ${area}。` },
+                        { text: `${base * height} 平方公分`, correct: false, exp: `【錯誤】忘記除以 2！這是平行四邊形的面積公式。` },
+                        { text: `${(base + height) * 2} 平方公分`, correct: false, exp: `【錯誤】這是長方形周長的計算方式，非面積。` },
+                        { text: `${area / 2} 平方公分`, correct: false, exp: `【錯誤】重複除以 2 導致計算過小。` }
+                    ];
+                    return { topic: '平面圖形面積', stem, options: shuffle(opts), focus: '牢記三角形面積公式為「(底 × 高) ÷ 2」。' };
+                }
+            ],
+            6: [ // Grade 6: 比例尺、圓面積、速度與基準量
+                () => {
+                    const r = randInt(3, 10);
+                    const area = (r * r * 3.14).toFixed(2);
+                    const stem = `有一個圓形花壇，半徑為 ${r} 公尺，圓周率以 3.14 計算，請問花壇的面積是多少平方公尺？`;
+                    const opts = [
+                        { text: `${area} 平方公尺`, correct: true, exp: `【正確】圓面積 = 半徑 × 半徑 × 圓周率 = ${r} × ${r} × 3.14 = ${area}。` },
+                        { text: `${(2 * r * 3.14).toFixed(2)} 平方公尺`, correct: false, exp: `【錯誤】這是「圓周長 (直徑 × 圓周率)」的公式，非圓面積。` },
+                        { text: `${(r * 3.14).toFixed(2)} 平方公尺`, correct: false, exp: `【錯誤】漏算了一個半徑乘積。` },
+                        { text: `${(r * r * 3).toFixed(2)} 平方公尺`, correct: false, exp: `【錯誤】圓周率估算值取 3 導致精確度不足。` }
+                    ];
+                    return { topic: '圓面積與圓周率', stem, options: shuffle(opts), focus: '區分圓面積（r²π）與圓周長（2rπ）公式差異。' };
+                }
+            ]
+        };
+
+        // 2. MANDARIN GENERATOR
+        const chiGenerators = {
+            1: [
+                () => {
+                    const words = [
+                        { char: '日', pinyin: 'ㄖˋ', desc: '太陽的象形字', wrong: ['月', '水', '木'] },
+                        { char: '水', pinyin: 'ㄕㄨㄟˇ', desc: '河流水流的象形字', wrong: ['火', '山', '石'] },
+                        { char: '木', pinyin: 'ㄇㄨˋ', desc: '樹木的象形字', wrong: ['林', '本', '禾'] }
+                    ];
+                    const target = sample(words);
+                    const stem = `請選出注音為「${target.pinyin}」且意思代表「${target.desc}」的漢字：`;
+                    const opts = [
+                        { text: target.char, correct: true, exp: `【正確】「${target.char}」注音為 ${target.pinyin}，代表${target.desc}。` },
+                        ...target.wrong.map(w => ({ text: w, correct: false, exp: `【錯誤】「${w}」字的字義或注音與題目不符。` }))
+                    ];
+                    return { topic: '注音與基本象形字', stem, options: shuffle(opts), focus: '掌握常用基礎漢字之音形義對應。' };
+                }
+            ],
+            2: [
+                () => {
+                    const pairs = [
+                        { correct: '休息', wrong: ['休習', '修息', '修習'], tip: '「息」有自息、停止之意。' },
+                        { correct: '太陽', wrong: ['大陽', '太揚', '犬陽'], tip: '「太」比「大」多一點。' },
+                        { correct: '朋友', wrong: ['朋有', '平友', '憑友'], tip: '「友」為友好之意。' }
+                    ];
+                    const item = sample(pairs);
+                    const stem = `下列哪一個詞語的用字是「完全正確」的？`;
+                    const opts = [
+                        { text: item.correct, correct: true, exp: `【正確】「${item.correct}」用字正確。${item.tip}` },
+                        ...item.wrong.map(w => ({ text: w, correct: false, exp: `【錯誤】「${w}」包含錯別字，非標準寫法。` }))
+                    ];
+                    return { topic: '錯別字辨析', stem, options: shuffle(opts), focus: '辨識形近字與同音字之標準用語。' };
+                }
+            ],
+            3: [
+                () => {
+                    const idioms = [
+                        { name: '畫蛇添足', exp: '比喻多此一舉，反而把事情弄糟糕。', wrongExps: ['比喻做事極為認真仔細', '形容繪畫技巧十分高超', '比喻動作非常敏捷'] },
+                        { name: '井底之蛙', exp: '比喻見識淺薄的人。', wrongExps: ['比喻游泳技術高超的人', '比喻生活在水邊的人', '比喻做事有條不紊的人'] }
+                    ];
+                    const item = sample(idioms);
+                    const stem = `成語「${item.name}」的意思最接近下列哪一個選項？`;
+                    const opts = [
+                        { text: item.exp, correct: true, exp: `【正確】${item.name}：${item.exp}` },
+                        ...item.wrongExps.map(w => ({ text: w, correct: false, exp: `【錯誤】此選項解釋與成語「${item.name}」原意不符。` }))
+                    ];
+                    return { topic: '成語釋義', stem, options: shuffle(opts), focus: '理解常見經典成語之典故與實際含意。' };
+                }
+            ],
+            4: [
+                () => {
+                    const rhetoric = [
+                        { sentence: '太陽公公露出了燦爛的微笑。', type: '擬人法', wrong: ['比喻法', '誇飾法', '排比法'], desc: '將無生命的太陽賦予人類「露微笑」的動作。' },
+                        { sentence: '這間房間小得連一隻螞蟻都站不下。', type: '誇飾法', wrong: ['擬人法', '設問法', '對偶法'], desc: '故意言過其實，極力誇大房間狹小的程度。' }
+                    ];
+                    const item = sample(rhetoric);
+                    const stem = `請判斷句子：「${item.sentence}」使用了哪一種修辭技巧？`;
+                    const opts = [
+                        { text: item.type, correct: true, exp: `【正確】${item.desc}` },
+                        ...item.wrong.map(w => ({ text: w, correct: false, exp: `【錯誤】「${w}」之修辭特徵與本句不符。` }))
+                    ];
+                    return { topic: '修辭技巧辨識', stem, options: shuffle(opts), focus: '透過句型分析理解修辭在文章中的表達效果。' };
+                }
+            ],
+            5: [
+                () => {
+                    const fillIdioms = [
+                        { stem: '形容人意志堅定，即使遇到挫折也絕不退縮，可以使用成語「百折不______」。', ans: '撓', wrong: ['撓', '饒', '鬧', '腦'], word: '百折不撓' },
+                        { stem: '他做事情總是「______不捨」，終究獲得了最後的成功。', ans: '鍥', wrong: ['鍥', '契', '潔', '擷'], word: '鍥而不捨' }
+                    ];
+                    const item = sample(fillIdioms);
+                    const stem = item.stem;
+                    const opts = [
+                        { text: item.ans, correct: true, exp: `【正確】成語為「${item.word}」，${item.ans}意為折彎/雕刻。` },
+                        ...item.wrong.slice(1).map(w => ({ text: w, correct: false, exp: `【錯誤】「${w}」為同音或形似錯字。` }))
+                    ];
+                    return { topic: '進階成語填空', stem, options: shuffle(opts), focus: '精確掌握高級成語之用字與字義。' };
+                }
+            ],
+            6: [
+                () => {
+                    const poetry = [
+                        { poet: '李白', sentence: '床前明月光，疑是地上霜。', title: '靜夜思', wrong: ['杜甫', '王維', '白居易'] },
+                        { poet: '孟浩然', sentence: '春眠不覺曉，處處聞啼鳥。', title: '春曉', wrong: ['李商隱', '杜牧', '王之渙'] }
+                    ];
+                    const item = sample(poetry);
+                    const stem = `古典詩詞「${item.sentence}」（出自《${item.title}》）的作者是哪一位唐代詩人？`;
+                    const opts = [
+                        { text: item.poet, correct: true, exp: `【正確】《${item.title}》作者為唐代著名詩人${item.poet}。` },
+                        ...item.wrong.map(w => ({ text: w, correct: false, exp: `【錯誤】${w}亦為唐代詩人，但非《${item.title}》作者。` }))
+                    ];
+                    return { topic: '國學常識與經典詩詞', stem, options: shuffle(opts), focus: '積累經典國學與文學常識底蘊。' };
+                }
+            ]
+        };
+
+        // 3. ENGLISH GENERATOR
+        const engGenerators = {
+            1: [
+                () => {
+                    const letters = [
+                        { upper: 'A', lower: 'a', word: 'Apple' },
+                        { upper: 'B', lower: 'b', word: 'Book' },
+                        { upper: 'C', lower: 'c', word: 'Cat' },
+                        { upper: 'D', lower: 'd', word: 'Dog' }
+                    ];
+                    const item = sample(letters);
+                    const stem = `Which is the lowercase (小寫) letter for "${item.upper}" (${item.word})?`;
+                    const opts = [
+                        { text: item.lower, correct: true, exp: `【Correct】The lowercase letter for '${item.upper}' is '${item.lower}'.` },
+                        ...letters.filter(l => l.upper !== item.upper).map(l => ({ text: l.lower, correct: false, exp: `【Incorrect】'${l.lower}' is the lowercase for '${l.upper}'.` }))
+                    ];
+                    return { topic: 'Alphabet & Phonics', stem, options: shuffle(opts), focus: 'Recognize capital and lowercase letter shapes.' };
+                }
+            ],
+            2: [
+                () => {
+                    const items = [
+                        { word: 'apple', article: 'an', wrong: 'a' },
+                        { word: 'banana', article: 'a', wrong: 'an' },
+                        { word: 'elephant', article: 'an', wrong: 'a' },
+                        { word: 'dog', article: 'a', wrong: 'an' }
+                    ];
+                    const item = sample(items);
+                    const stem = `Choose the correct article for the word: "______ ${item.word}"`;
+                    const opts = [
+                        { text: `${item.article}`, correct: true, exp: `【Correct】We use '${item.article}' before words starting with a ${item.article === 'an' ? 'vowel sound (a,e,i,o,u)' : 'consonant sound'}.` },
+                        { text: `${item.wrong}`, correct: false, exp: `【Incorrect】'${item.wrong}' is not used before '${item.word}'.` },
+                        { text: `two`, correct: false, exp: `【Incorrect】'Two' requires a plural noun (e.g. ${item.word}s).` },
+                        { text: `are`, correct: false, exp: `【Incorrect】'Are' is a verb, not an article.` }
+                    ];
+                    return { topic: 'Articles (a / an)', stem, options: shuffle(opts), focus: 'Master the usage of articles "a" and "an".' };
+                }
+            ],
+            3: [
+                () => {
+                    const verbs = [
+                        { subj: 'He', verb: 'is', wrong: ['am', 'are', 'be'] },
+                        { subj: 'They', verb: 'are', wrong: ['is', 'am', 'be'] },
+                        { subj: 'I', verb: 'am', wrong: ['is', 'are', 'be'] }
+                    ];
+                    const item = sample(verbs);
+                    const stem = `Complete the sentence: "${item.subj} ______ studying English now."`;
+                    const opts = [
+                        { text: item.verb, correct: true, exp: `【Correct】Subject '${item.subj}' takes verb to be '${item.verb}'.` },
+                        ...item.wrong.map(w => ({ text: w, correct: false, exp: `【Incorrect】'${w}' does not agree with subject '${item.subj}'.` }))
+                    ];
+                    return { topic: 'Subject-Verb Agreement (Be-verbs)', stem, options: shuffle(opts), focus: 'Match correct form of "be" with subjects.' };
+                }
+            ],
+            4: [
+                () => {
+                    const pastVerbs = [
+                        { present: 'go', past: 'went', wrong: ['goed', 'going', 'gos'] },
+                        { present: 'eat', past: 'ate', wrong: ['eated', 'eating', 'eats'] },
+                        { present: 'see', past: 'saw', wrong: ['seed', 'seeing', 'sees'] }
+                    ];
+                    const item = sample(pastVerbs);
+                    const stem = `What is the simple past tense (過去式) of the verb "${item.present}"?`;
+                    const opts = [
+                        { text: item.past, correct: true, exp: `【Correct】'${item.present}' is an irregular verb; its past tense is '${item.past}'.` },
+                        ...item.wrong.map(w => ({ text: w, correct: false, exp: `【Incorrect】'${w}' is an incorrect past tense form for '${item.present}'.` }))
+                    ];
+                    return { topic: 'Irregular Past Tense Verbs', stem, options: shuffle(opts), focus: 'Memorize common irregular verb transformations in past tense.' };
+                }
+            ],
+            5: [
+                () => {
+                    const degrees = [
+                        { adj: 'tall', comp: 'taller', sup: 'tallest' },
+                        { adj: 'fast', comp: 'faster', sup: 'fastest' }
+                    ];
+                    const item = sample(degrees);
+                    const stem = `Tom is 150cm and Jack is 160cm. Jack is ______ than Tom.`;
+                    const opts = [
+                        { text: item.comp, correct: true, exp: `【Correct】When comparing two people with 'than', use the comparative degree (${item.comp}).` },
+                        { text: item.sup, correct: false, exp: `【Incorrect】'${item.sup}' is superlative, used for 3 or more people.` },
+                        { text: item.adj, correct: false, exp: `【Incorrect】Must use comparative form when 'than' is present.` },
+                        { text: `more ${item.adj}`, correct: false, exp: `【Incorrect】Short adjectives add '-er', not 'more'.` }
+                    ];
+                    return { topic: 'Comparatives (-er than)', stem, options: shuffle(opts), focus: 'Form and apply comparative adjectives.' };
+                }
+            ],
+            6: [
+                () => {
+                    const sentence = [
+                        { q: 'If it rains tomorrow, we ______ stay at home.', ans: 'will', wrong: ['would', 'did', 'have'] },
+                        { q: 'She has ______ in Taipei for five years.', ans: 'lived', wrong: ['live', 'living', 'was lived'] }
+                    ];
+                    const item = sample(sentence);
+                    const stem = `Choose the correct word to complete the sentence:\n"${item.q}"`;
+                    const opts = [
+                        { text: item.ans, correct: true, exp: `【Correct】Fits the grammatical structure and timeline of the clause.` },
+                        ...item.wrong.map(w => ({ text: w, correct: false, exp: `【Incorrect】'${w}' creates a tense mismatch or grammatical error.` }))
+                    ];
+                    return { topic: 'Advanced Grammar & Tenses', stem, options: shuffle(opts), focus: 'Understand conditional and perfect tense structures.' };
+                }
+            ]
+        };
+
+        // --- Core Application Logic ---
+
+        // Generate dynamic question based on selection
+        function createDynamicQuestion(grade, subject) {
+            let pool = [];
+            if (subject === 'math') pool = mathGenerators[grade] || mathGenerators[1];
+            else if (subject === 'chi') pool = chiGenerators[grade] || chiGenerators[1];
+            else if (subject === 'eng') pool = engGenerators[grade] || engGenerators[1];
+
+            const generator = sample(pool);
+            const data = generator();
+            data.grade = grade;
+            data.subject = subject;
+            data.id = Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+            return data;
+        }
+
+        function loadQuestionAtStackIndex() {
+            const q = questionHistory[historyIndex];
+            
+            // Render Headings & Badges
+            document.getElementById('tagBadge').innerHTML = `<i class="fa-solid fa-graduation-cap mr-1"></i>小${q.grade} ${getSubjectName(q.subject)}`;
+            document.getElementById('topicName').innerText = q.topic;
+            document.getElementById('questionIndex').innerText = `題目序號: #${historyIndex + 1}`;
+            document.getElementById('questionStem').innerText = q.stem;
+
+            // Render Options
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            const prefixes = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-card text-left p-4 rounded-2xl border-2 border-slate-200 bg-white font-bold text-slate-700 hover:border-sky-400 hover:bg-sky-50 flex items-start gap-3 w-full`;
+                btn.onclick = () => handleAnswer(idx);
+                btn.id = `optBtn_${idx}`;
+                
+                btn.innerHTML = `
+                    <span class="bg-slate-100 text-slate-600 rounded-xl px-2.5 py-1 text-xs font-black shrink-0 border border-slate-200">${prefixes[idx]}</span>
+                    <span class="text-sm md:text-base leading-snug pt-0.5">${opt.text}</span>
+                `;
+                container.appendChild(btn);
+            });
+
+            // Hide Explanation initially if not answered
+            const expBox = document.getElementById('explanationBox');
+            if (q.userAnswered !== undefined) {
+                renderAnsweredState(q);
+            } else {
+                expBox.classList.add('hidden');
+            }
+
+            // Update Nav Buttons State
+            document.getElementById('prevBtn').disabled = (historyIndex <= 0);
+        }
+
+        function handleAnswer(selectedIndex) {
+            const q = questionHistory[historyIndex];
+            if (q.userAnswered !== undefined) return; // Prevent double answer
+
+            q.userAnswered = selectedIndex;
+            const isCorrect = q.options[selectedIndex].correct;
+
+            // Update stats
+            stats.total++;
+            if (isCorrect) {
+                stats.correct++;
+                stats.streak++;
+                if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
+            } else {
+                stats.streak = 0;
+            }
+            stats[q.subject]++;
+
+            updateStatsUI();
+            renderAnsweredState(q);
+        }
+
+        function renderAnsweredState(q) {
+            const isCorrect = q.options[q.userAnswered].correct;
+            const expBox = document.getElementById('explanationBox');
+            expBox.classList.remove('hidden');
+
+            // Header Status
+            const statusHeader = document.getElementById('resultStatusHeader');
+            if (isCorrect) {
+                statusHeader.className = "flex items-center gap-2 font-bold mb-3 text-emerald-600 text-base md:text-lg";
+                statusHeader.innerHTML = `<i class="fa-solid fa-circle-check text-xl"></i> 答對了！非常優秀！`;
+            } else {
+                statusHeader.className = "flex items-center gap-2 font-bold mb-3 text-rose-600 text-base md:text-lg";
+                statusHeader.innerHTML = `<i class="fa-solid fa-circle-xmark text-xl"></i> 答錯囉！請仔細閱讀下方四選項註釋：`;
+            }
+
+            // Option styling after answer
+            const prefixes = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, idx) => {
+                const btn = document.getElementById(`optBtn_${idx}`);
+                btn.disabled = true;
+
+                if (opt.correct) {
+                    btn.className = `option-card text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-900 flex items-start gap-3 w-full`;
+                } else if (idx === q.userAnswered) {
+                    btn.className = `option-card text-left p-4 rounded-2xl border-2 border-rose-400 bg-rose-50 font-bold text-rose-900 flex items-start gap-3 w-full`;
+                } else {
+                    btn.className = `option-card text-left p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 font-medium text-slate-400 opacity-60 flex items-start gap-3 w-full`;
+                }
+            });
+
+            // Focus Note
+            document.getElementById('learningFocus').innerText = `💡 學習重點：${q.focus}`;
+
+            // Render ALL Four Option Explanations (Critical Requirement)
+            const list = document.getElementById('optionExplanationsList');
+            list.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border ${opt.correct ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-white border-slate-200 text-slate-600'}`;
+                item.innerHTML = `
+                    <div class="font-bold flex items-center gap-1.5 mb-1">
+                        <span class="px-1.5 py-0.5 rounded text-xs ${opt.correct ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-200 text-slate-700'}">${prefixes[idx]}</span>
+                        <span>${opt.text}</span>
+                        ${opt.correct ? '<span class="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold ml-auto">正確解答</span>' : ''}
+                    </div>
+                    <div class="text-xs leading-relaxed pl-6">${opt.exp}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // --- Navigation Handlers ---
+
+        function nextQuestion() {
+            if (historyIndex < questionHistory.length - 1) {
+                historyIndex++;
+            } else {
+                // Generate brand new unique dynamic question
+                const newQ = createDynamicQuestion(currentGrade, currentSubject);
+                questionHistory.push(newQ);
+                historyIndex++;
+            }
+            loadQuestionAtStackIndex();
+        }
+
+        function prevQuestion() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                loadQuestionAtStackIndex();
+            }
+        }
+
+        function rerollQuestion() {
+            // Replace current question with fresh dynamic variation
+            const newQ = createDynamicQuestion(currentGrade, currentSubject);
+            questionHistory[historyIndex] = newQ;
+            loadQuestionAtStackIndex();
+            showToast('已重新產生全新題型題目！');
+        }
+
+        function changeFilter() {
+            currentGrade = parseInt(document.getElementById('gradeSelect').value);
+            currentSubject = document.getElementById('subjectSelect').value;
+            
+            // Reset question stack for new filter context
+            questionHistory = [];
+            historyIndex = -1;
+            nextQuestion();
+            showToast(`已切換至 小學${currentGrade}年級 ${getSubjectName(currentSubject)}`);
+        }
+
+        function getSubjectName(sub) {
+            if (sub === 'math') return '數學';
+            if (sub === 'chi') return '國語';
+            if (sub === 'eng') return '英語';
+            return '';
+        }
+
+        function updateStatsUI() {
+            document.getElementById('streakCount').innerText = stats.streak;
+            const acc = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 100;
+            document.getElementById('accuracyRate').innerText = `${acc}%`;
+
+            // Modal stats
+            document.getElementById('totalAnsweredCount').innerText = stats.total;
+            document.getElementById('correctAnsweredCount').innerText = stats.correct;
+            document.getElementById('maxStreak').innerText = `${stats.maxStreak} 題`;
+            document.getElementById('chiCount').innerText = `${stats.chi} 題`;
+            document.getElementById('engCount').innerText = `${stats.eng} 題`;
+            document.getElementById('mathCount').innerText = `${stats.math} 題`;
+        }
+
+        function resetStats() {
+            stats = { total: 0, correct: 0, streak: 0, maxStreak: 0, chi: 0, eng: 0, math: 0 };
+            updateStatsUI();
+            showToast('學習紀錄已重置');
+        }
+
+        function toggleStatsModal() {
+            const modal = document.getElementById('statsModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Voice Readout (TTS)
+        function speakQuestion() {
+            if (!('speechSynthesis' in window)) {
+                showToast('您的瀏覽器不支援語音朗讀');
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const text = document.getElementById('questionStem').innerText;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = currentSubject === 'eng' ? 'en-US' : 'zh-TW';
+            utterance.rate = 0.9; // Slightly slower for primary kids
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- Initialization ---
+        window.onload = function() {
+            nextQuestion();
+        };
+    </script>
+</body>
+</html>
